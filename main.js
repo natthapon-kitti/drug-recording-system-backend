@@ -41,4 +41,32 @@ app.get('/medications', (req, res) => {
     })
 })
 
+app.get('/records', (req, res) => {
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const offset = (page - 1) * limit
+
+    const sql = 'SELECT * FROM Records LIMIT ? OFFSET ?'
+    const countSql = 'SELECT COUNT(*) AS total FROM Records'
+
+    connection.query(countSql, (err, countResult) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        const total = countResult[0].total;
+        const totalPages = Math.ceil(total / limit)
+
+        connection.query(sql, [limit, offset], (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            res.status(200).json({
+                page,
+                limit,
+                total,
+                totalPages,
+                data: rows
+            })
+        })
+    })
+})
+
 app.listen(port)
