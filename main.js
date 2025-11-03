@@ -30,4 +30,15 @@ app.get('/students', (req, res) => {
     })
 })
 
+app.get('/medications', (req, res) => {
+    connection.connect()
+
+    connection.query('SELECT * FROM Medications', (err, rows, fields) => {
+        if (err) throw err
+
+        console.log(rows)
+        res.status(200).json(rows)
+    })
+})
+
 app.listen(port)
