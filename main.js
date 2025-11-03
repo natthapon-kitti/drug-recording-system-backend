@@ -4,6 +4,7 @@ const app = express()
 const port = 8000
 require('dotenv').config();
 
+app.use(express.json())
 
 const connection = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -56,7 +57,7 @@ app.get('/records', (req, res) => {
         const totalPages = Math.ceil(total / limit)
 
         connection.query(sql, [limit, offset], (err, rows) => {
-            if (err) return res.status(500).json({ error: err.message });
+            if (err) return res.status(500).json({ error: err.message })
 
             res.status(200).json({
                 page,
@@ -67,6 +68,26 @@ app.get('/records', (req, res) => {
             })
         })
     })
+})
+
+app.post('/records/create', (req, res) => {
+    console.log(req.body)
+    const { student_id, med_id, symptoms } = req.body
+    const timestamp = new Date()
+
+    const sql = 'INSERT INTO Records  (student_id,med_id,symptoms,timestamp) VALUES (?,?,?,?)'
+
+    connection.query(sql, [student_id, med_id, symptoms, timestamp], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message })
+
+
+        res.status(200).json({
+            message: 'Record added successfully',
+            insertedId: rows.insertId
+        })
+    })
+
+
 })
 
 app.listen(port)
