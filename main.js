@@ -90,4 +90,24 @@ app.post('/records/create', (req, res) => {
 
 })
 
+app.put('/records/edit', (req, res) => {
+    const { student_id, med_id, symptoms, record_id } = req.body
+    const timestamp = new Date()
+
+    const sql = 'UPDATE Records SET student_id = ?, med_id = ?, symptoms = ?,timestamp = ? WHERE record_id = ?'
+
+    connection.query(sql, [student_id, med_id, symptoms, timestamp, record_id], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message })
+
+        console.log(rows)
+
+        res.status(200).json({
+            message: 'Record edited successfully',
+            record_id: record_id
+        })
+
+    })
+
+})
+
 app.listen(port)
