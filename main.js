@@ -83,7 +83,7 @@ app.post('/records/create', (req, res) => {
 
         res.status(200).json({
             message: 'Record added successfully',
-            insertedId: rows.insertId
+            record_id: rows.insertId
         })
     })
 
@@ -108,6 +108,30 @@ app.put('/records/edit', (req, res) => {
 
     })
 
+})
+
+app.delete('/records/delete', (req, res) => {
+    const { record_id } = req.body
+
+    const sql = 'DELETE FROM Records WHERE record_id = ?'
+
+    connection.query(sql, [record_id], (err, results) => {
+
+        if (err) return res.status(500).json({ error: err.message })
+
+        if (results.affectedRows === 0) {
+            return res.status(404).json({
+                message: 'Record not found',
+                record_id: record_id
+            })
+        }
+
+
+        res.status(200).json({
+            message: 'Record deleted successfully',
+            record_id: record_id
+        })
+    })
 })
 
 app.listen(port)
