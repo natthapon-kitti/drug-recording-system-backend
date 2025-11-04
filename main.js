@@ -70,6 +70,22 @@ app.get('/records', (req, res) => {
     })
 })
 
+app.get('/records/:id', (req, res) => {
+    const id = req.params.id
+
+    const sql = 'SELECT * FROM Records WHERE record_id = ?'
+
+
+
+    connection.query(sql, [id], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message })
+
+        res.status(200).json({
+            data: rows
+        })
+    })
+})
+
 app.post('/records/create', (req, res) => {
     console.log(req.body)
     const { student_id, med_id, symptoms } = req.body
