@@ -128,8 +128,9 @@ app.put('/records/edit', (req, res) => {
 
 })
 
-app.delete('/records/delete', (req, res) => {
-    const { record_id } = req.body
+app.delete('/records/delete/:record_id', (req, res) => {
+    const record_id = req.params.record_id
+    console.log(record_id)
 
     const sql = 'DELETE FROM Records WHERE record_id = ?'
 
