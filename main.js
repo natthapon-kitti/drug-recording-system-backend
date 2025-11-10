@@ -48,17 +48,32 @@ app.get('/records', (req, res) => {
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const offset = (page - 1) * limit
+    const filterId = req.query.filterId && req.query.filterId != 0 ? parseInt(req.query.filterId) : null
 
-    const sql = 'SELECT * FROM Records LIMIT ? OFFSET ?'
-    const countSql = 'SELECT COUNT(*) AS total FROM Records'
+    let sql = 'SELECT * FROM Records'
+    let countSql = 'SELECT COUNT(*) AS total FROM Records'
+    let sqlParams = []
+    let countParams = []
 
-    connection.query(countSql, (err, countResult) => {
+    if (filterId !== null) {
+        sql += ' WHERE record_id = ?'
+        countSql += ' WHERE record_id = ?'
+        sqlParams.push(filterId)
+        countParams.push(filterId)
+    } else {
+        sql += ' LIMIT ? OFFSET ?'
+        sqlParams.push(limit, offset)
+    }
+
+    // ดึงจำนวนรวมก่อน
+    connection.query(countSql, countParams, (err, countResult) => {
         if (err) return res.status(500).json({ error: err.message });
 
-        const total = countResult[0].total;
+        const total = countResult[0].total
         const totalPages = Math.ceil(total / limit)
 
-        connection.query(sql, [limit, offset], (err, rows) => {
+        // ดึงข้อมูลจริง
+        connection.query(sql, sqlParams, (err, rows) => {
             if (err) return res.status(500).json({ error: err.message })
 
             res.status(200).json({
