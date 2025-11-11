@@ -56,23 +56,21 @@ app.get('/records', (req, res) => {
     let countParams = []
 
     if (filterId !== null) {
-        sql += ' WHERE record_id = ?'
+        sql += ' WHERE record_id = ? ORDER BY timestamp DESC'
         countSql += ' WHERE record_id = ?'
         sqlParams.push(filterId)
         countParams.push(filterId)
     } else {
-        sql += ' LIMIT ? OFFSET ?'
+        sql += ' ORDER BY timestamp DESC LIMIT ? OFFSET ?'
         sqlParams.push(limit, offset)
     }
 
-    // ดึงจำนวนรวมก่อน
     connection.query(countSql, countParams, (err, countResult) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) return res.status(500).json({ error: err.message })
 
         const total = countResult[0].total
         const totalPages = Math.ceil(total / limit)
 
-        // ดึงข้อมูลจริง
         connection.query(sql, sqlParams, (err, rows) => {
             if (err) return res.status(500).json({ error: err.message })
 
